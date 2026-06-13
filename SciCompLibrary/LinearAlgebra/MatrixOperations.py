@@ -134,7 +134,23 @@ class Matrix:
                 if (self[i][j] != 0):
                     return False
         return True
+    
+    def is_normal(self) -> bool:
+        if not self.is_square():
+            return False
+        else:
+            return multiply_matrices(self, self.transpose()) == multiply_matrices(self.transpose(), self)
+    
+    def is_orthogonal(self) -> bool:
+        """
+        Returns whether the matrix is orthogonal. That is, for a square matrix A and identity matrix I,
 
+        A * A^t = I
+        """
+        if not self.is_square():
+            return False
+        else:
+            return multiply_matrices(self, self.transpose()) == create_identity(self.cols)
 class Vector():
     def __init__(self, length: int):
         self.length = length
@@ -148,11 +164,18 @@ class Vector():
         fromlist.data = vector
         return fromlist
     
+    # Boring python special methods for objects
     def __str__(self) -> str:
         result = "<"
         for val in self.data:
             result += f"{val}, "
         return result[:-2] + ">\n"
+    
+    def __repr__(self) -> str:
+        result = "\n<"
+        for val in self.data:
+            result += f"{val}, "
+        return result[:-2] + ">"
 
     def __getitem__(self, key):
         return self.data[key]
@@ -193,7 +216,8 @@ class Vector():
     
     def __len__(self):
         return self.length
-        
+
+    # Actual vector operations
     def copy(self):
         """
         Returns a copy of the vector. Use when creating an identical independent instance.
@@ -232,14 +256,26 @@ class Vector():
 
 
 
-def vector_split(self) -> list[Vector]:
+def matrix_to_vectors(matrix: Matrix) -> list[Vector]:
         vectors = []
-        for col in range(self.cols):
+        for col in range(matrix.cols):
             vec = []
-            for row in self.data:
+            for row in matrix.data:
                 vec.append(row[col])
             vectors.append(Vector.from_list(vec))
         return vectors
+
+def vectors_to_matrix(vecs: list[Vector]) -> Matrix:
+    
+    matrix_list = [[] for i in range(vecs[0].length)] # Create a 2D list with as many rows as the vectors are long
+    vec_length = vecs[0].length
+    for vec in vecs:
+        # Check that vectors are the same length while iterating.
+        assert vec.length == vec_length, "Inconsistent vector lengths when converting vectors to a matrix."
+        for i in range(vec.length):
+            matrix_list[i].append(vec[i])
+
+    return Matrix.from_list(matrix_list)
 
 def same_size(A: Matrix, B: Matrix) -> bool:
     """
@@ -361,7 +397,7 @@ def gauss_jordan_elimination(A: Matrix) -> Matrix:
     # Step 1: Perform Gaussian Elimination
     ref_form = gaussian_elimination(A)
     if ref_form == A: # If unsuccessful, return original matrix
-        print("Gauss-Jordan failed, Gaussian elimination unsuccessful.")
+        print("Gaussian elimination failed, Gauss-Jordan unsuccessful.")
         return A
     
     # Step 2: Normalize the matrix (divide each row by its pivot)
@@ -396,6 +432,7 @@ def invert_matrix(A: Matrix) -> Matrix:
     block = create_block_matrix(A, create_identity(A.rows))
     elimination = gauss_jordan_elimination(block)
     if elimination == A:
+        print("Gauss-Jordan failed, matrix inversion unsuccessful.")
         return A
     GJ_form = elimination.copy()
     size = GJ_form.rows
@@ -424,10 +461,14 @@ D = [[1,2,3,4],
 
 E = Vector.from_list([1, 1, 1, 1])
 
+Q = [[0, -1],
+     [1, 0]]
+
 A = Matrix.from_list(A)
 B = Matrix.from_list(B)
 C = Matrix.from_list(C)
 D = Matrix.from_list(D)
-I = create_identity(3)
+I = create_identity(2)
+Q = Matrix.from_list(Q)
 
-print(vector_split(D))
+print(invert_matrix(Q))
