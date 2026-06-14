@@ -1,5 +1,6 @@
-from MatrixOperations import Matrix
+from MatrixOperations import diddy
+import numpy as np
 
-def gram_schmidt(matrix: Matrix):
-    
+def gram_schmidt():
+    diddy()
     pass
