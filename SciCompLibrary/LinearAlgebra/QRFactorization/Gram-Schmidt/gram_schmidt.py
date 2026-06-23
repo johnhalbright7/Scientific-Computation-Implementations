@@ -11,12 +11,10 @@ def gram_schmidt(A: np.typing.NDArray):
             v[:,[i]] -= ((Q[:, [j]] @ Q[:,[j]].T) @ A[:,[i]])
     last_col = A.shape[1]-1
     Q[:,[last_col]] = v[:,[last_col]] / np.linalg.norm(v[:,[last_col]])
-    R = np.zeros(A.shape)
-    for row in range(0, R.shape[0]):
-        R[row, row] = np.linalg.norm(v[:,[row]])
-        for col in range(row+1, R.shape[1]):
-            R[row, col] = Q[:,row].T @ A[:,col]
 
+    tolerance = 1e-15
+    R = Q.T @ A
+    R = np.where(np.abs(R) < tolerance, 0.0, R)
 
     return Q, R
 
@@ -26,6 +24,7 @@ A = np.array([[1, 2, 3],
               [3, 2, 3]])
 
 Q, R = gram_schmidt(A)
+np.set_printoptions(suppress=True, precision=15)
 print(Q)
 print(R)
 print(Q @ R)
